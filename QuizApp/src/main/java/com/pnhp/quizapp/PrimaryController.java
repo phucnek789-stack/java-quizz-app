@@ -24,7 +24,7 @@ public class PrimaryController implements Initializable{
     }
     
     public void Practice(ActionEvent e){
-        MyAlertSingleton.getInstance().showMessage("[ManageQuestion] Coming soon... ");
+        MyStageSingleton.getInstance().showStage("practice");
     }
     
     public void Exam(ActionEvent e){

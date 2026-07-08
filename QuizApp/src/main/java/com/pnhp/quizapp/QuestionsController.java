@@ -8,9 +8,7 @@ import com.pnhp.pojo.Category;
 import com.pnhp.pojo.Choice;
 import com.pnhp.pojo.Level;
 import com.pnhp.pojo.Question;
-import com.pnhp.services.CategoryServices;
-import com.pnhp.services.LevelServices;
-import com.pnhp.services.question.QuestionServices;
+import com.pnhp.pojo.QuestionQueryBuilder;
 import com.pnhp.utils.Configs;
 import com.pnhp.utils.MyAlertSingleton;
 import java.net.URL;
@@ -67,7 +65,17 @@ public class QuestionsController implements Initializable {
         } catch (SQLException ex) {
             
         } 
-        loadTabQuestion();
+        loadTableQuestion();
+        
+        this.txtKeywords.textProperty().addListener(e->{
+            this.loadTableQuestion();
+        });
+        this.cbSearchCates.getSelectionModel().selectedItemProperty().addListener(e->{
+            this.loadTableQuestion();
+        });
+        this.cbSearchLevels.getSelectionModel().selectedItemProperty().addListener(e->{
+            this.loadTableQuestion();
+        });
     }    
     
     public void loadColumns(){
@@ -116,20 +124,23 @@ public class QuestionsController implements Initializable {
             if (b.isPresent() && b.get() == ButtonType.OK) {
                 Configs.uQuestionService.addQuestion(q, choices);
                 MyAlertSingleton.getInstance().showMessage("Thêm câu hỏi thành công!");
-                loadTabQuestion();
+                loadTableQuestion();
             }
         } catch (SQLException ex) {
             MyAlertSingleton.getInstance().showMessage("Thêm câu hỏi thất bại, do: " + ex.getMessage(), Alert.AlertType.ERROR);
         }
     }
     
-    private void loadTabQuestion(){
+    private void loadTableQuestion(){
+        QuestionQueryBuilder query = new QuestionQueryBuilder()
+                .withCategory(this.cbSearchCates.getSelectionModel().getSelectedItem())
+                .withKeywords(this.txtKeywords.getText())
+                .withLevel(this.cbLevels.getSelectionModel().getSelectedItem());
+        
+        Configs.questionService.setQuery(query);
+        
         try {
-           
-            this.tvQuestions.setItems(FXCollections.observableList(Configs.questionService.getQuestions(
-                    this.txtKeywords.getText(), 
-                    this.cbSearchCates.getSelectionModel().getSelectedItem(), 
-                    this.cbLevels.getSelectionModel().getSelectedItem())));
+            this.tvQuestions.setItems(FXCollections.observableList(Configs.questionService.getQuestions()));
         } catch (SQLException ex) {
             Logger.getLogger(QuestionsController.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
