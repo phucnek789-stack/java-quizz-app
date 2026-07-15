@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @author admin
  */
-public class QuestionServices {
+public class QuestionServices extends QuestionServiceBase{
     private QuestionQueryBuilder query;
 
     public QuestionServices() {
@@ -28,6 +28,7 @@ public class QuestionServices {
     
     
     
+    @Override
     public List<Question> getQuestions() throws SQLException{
 //        Connection conn = MyConnSingleton.getInstance().connect();
 //

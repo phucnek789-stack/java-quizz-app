@@ -56,6 +56,19 @@ public class QuestionQueryBuilder {
         return this;
     }
     
+    public QuestionQueryBuilder setLimit(int limit){
+        if(this.sql.toString().toLowerCase().contains("limit") == false){
+            this.sql.append(" LIMIT ?");
+            this.params.add(limit);
+        }
+        return this;
+    }
+    
+    public QuestionQueryBuilder setLimit(String limit){
+        this.setLimit(Integer.parseInt(limit));
+        return this;
+    }
+    
     public PreparedStatement build() throws SQLException{
         PreparedStatement stm = MyConnSingleton.getInstance().connect()
                 .prepareCall(String.format(this.sql.toString(), this.where.toString(), this.orderBy));
