@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author admin
  */
-public class QuestionServiceDecorator extends QuestionServiceBase{
+public class QuestionServiceDecorator implements QuestionServiceBase{
     private QuestionServiceBase q;
 
     public QuestionServiceDecorator(QuestionServiceBase q) {
@@ -20,8 +20,8 @@ public class QuestionServiceDecorator extends QuestionServiceBase{
     }
 
     @Override
-    public List<Question> getQuestions() throws SQLException {
-        List<Question> questions = this.q.getQuestions();
+    public List<Question> list() throws SQLException {
+        List<Question> questions = this.q.list();
         
         ChoiceServices se = new ChoiceServices();
         for(var ques: questions){

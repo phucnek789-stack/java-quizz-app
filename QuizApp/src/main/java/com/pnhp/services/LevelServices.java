@@ -18,21 +18,31 @@ import java.util.List;
  *
  * @author Phupham
  */
-public class LevelServices {
-    public List<Level> getLevels() throws SQLException{
-        Connection conn = MyConnSingleton.getInstance().connect();
+public class LevelServices extends QueryServiceBase<Level>{
 
-        String sql = "SELECT * FROM Level";
-        PreparedStatement stm = conn.prepareCall(sql);
-        ResultSet rs = stm.executeQuery();
-
-        List<Level> levels = new ArrayList<>();
-        while(rs.next()){
-            int id = rs.getInt("id");
-            String name = rs.getString("name");
-
-               levels.add(new Level(id, name));
-        }
-        return levels;
+    @Override
+    public PreparedStatement geStm() throws SQLException {
+        return MyConnSingleton.getInstance().connect().prepareCall("SELECT * FROM level");
     }
+
+    @Override
+    public Level getObject(ResultSet rs) throws SQLException {
+        return new Level(rs.getInt("id"), rs.getString("name"));
+    }
+//    public List<Level> getLevels() throws SQLException{
+//        Connection conn = MyConnSingleton.getInstance().connect();
+//
+//        String sql = "SELECT * FROM Level";
+//        PreparedStatement stm = conn.prepareCall(sql);
+//        ResultSet rs = stm.executeQuery();
+//
+//        List<Level> levels = new ArrayList<>();
+//        while(rs.next()){
+//            int id = rs.getInt("id");
+//            String name = rs.getString("name");
+//
+//               levels.add(new Level(id, name));
+//        }
+//        return levels;
+//    }
 }

@@ -8,6 +8,7 @@ import com.pnhp.pojo.Category;
 import com.pnhp.pojo.Level;
 import com.pnhp.pojo.Question;
 import com.pnhp.pojo.QuestionQueryBuilder;
+import com.pnhp.services.FlyweightFactory;
 import com.pnhp.services.question.QuestionServiceDecorator;
 import com.pnhp.utils.Configs;
 import com.pnhp.utils.MyAlertSingleton;
@@ -54,16 +55,17 @@ public class PracticeController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        try {
-            this.cbSearchCates.setItems(FXCollections.observableList(Configs.cateService.getCates()));
-            this.cbSearchLevels.setItems(FXCollections.observableList(Configs.levelService.getLevels()));
-            //this.tvQuestions.setItems(FXCollections.observableList(Configs.questionService.getQuestions(kw, cate, lv)));
-        } catch (SQLException ex) {
-
-        }
+        this.cbSearchCates.setItems(FXCollections.observableList(FlyweightFactory.getData(Configs.cateService, Configs.CATE_KEY)));
+        this.cbSearchLevels.setItems(FXCollections.observableList(FlyweightFactory.getData(Configs.levelService, Configs.LVL_KEY)));
     }
 
     public void start(ActionEvent e) {
+        String limitText = this.txtNum.getText().trim();
+        if (limitText.isEmpty() || !limitText.matches("\\d+")) {
+            MyAlertSingleton.getInstance().showMessage("Số lượng câu hỏi không hợp lệ!", Alert.AlertType.WARNING);
+            return;
+        }
+        
         QuestionQueryBuilder query = new QuestionQueryBuilder()
                 .withCategory(this.cbSearchCates.getSelectionModel().getSelectedItem())
                 .withLevel(this.cbSearchLevels.getSelectionModel().getSelectedItem())
@@ -71,8 +73,13 @@ public class PracticeController implements Initializable {
                 .setLimit(this.txtNum.getText());
         Configs.questionService.setQuery(query);
         try {
-            this.questions = new QuestionServiceDecorator(Configs.questionService).getQuestions();
-            this.showQuestion(1);
+            this.questions = new QuestionServiceDecorator(Configs.questionService).list();
+            if (this.questions != null && !this.questions.isEmpty()) {
+                this.currentIdx = 0; // Đảm bảo reset về 0 khi bắt đầu lượt mới
+                this.showQuestion(0);
+            } else {
+                MyAlertSingleton.getInstance().showMessage("Không có câu hỏi nào!", Alert.AlertType.INFORMATION);
+            }   
         } catch (SQLException ex) {
             Logger.getLogger(PracticeController.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
@@ -87,6 +94,8 @@ public class PracticeController implements Initializable {
     }
 
     public void checkAnswer(ActionEvent e) {
+        if (this.questions == null || this.questions.isEmpty()) return;
+        
         Question q = this.questions.get(this.currentIdx);
         for(int i=0; i<this.vChoices.getChildren().size();i++){
             RadioButton r = (RadioButton) this.vChoices.getChildren().get(i);
@@ -101,10 +110,11 @@ public class PracticeController implements Initializable {
     }
 
     private void showQuestion(int step) {
-        this.currentIdx += step;
+        int targetIdx = this.currentIdx + step;
 
-        if (this.currentIdx >= 0 && this.currentIdx < this.questions.size()) {
-            Question q = this.questions.get(currentIdx);
+        if (targetIdx >= 0 && targetIdx < this.questions.size()) {
+            this.currentIdx = targetIdx;
+            Question q = this.questions.get(this.currentIdx);
             this.lblContent.setText(q.getContent());
 
             this.vChoices.getChildren().clear();

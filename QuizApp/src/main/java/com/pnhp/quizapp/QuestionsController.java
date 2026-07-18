@@ -9,6 +9,7 @@ import com.pnhp.pojo.Choice;
 import com.pnhp.pojo.Level;
 import com.pnhp.pojo.Question;
 import com.pnhp.pojo.QuestionQueryBuilder;
+import com.pnhp.services.FlyweightFactory;
 import com.pnhp.utils.Configs;
 import com.pnhp.utils.MyAlertSingleton;
 import java.net.URL;
@@ -56,15 +57,12 @@ public class QuestionsController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         this.loadColumns();
-        try {
-            this.cbCates.setItems(FXCollections.observableList(Configs.cateService.getCates()));
-            this.cbLevels.setItems(FXCollections.observableList(Configs.levelService.getLevels()));
-            this.cbSearchCates.setItems(FXCollections.observableList(Configs.cateService.getCates()));
-            this.cbSearchLevels.setItems(FXCollections.observableList(Configs.levelService.getLevels()));
-            //this.tvQuestions.setItems(FXCollections.observableList(Configs.questionService.getQuestions(kw, cate, lv)));
-        } catch (SQLException ex) {
-            
-        } 
+        
+        this.cbCates.setItems(FXCollections.observableList(FlyweightFactory.getData(Configs.cateService, Configs.CATE_KEY)));
+        this.cbLevels.setItems(FXCollections.observableList(FlyweightFactory.getData(Configs.levelService, Configs.LVL_KEY)));
+        this.cbSearchCates.setItems(FXCollections.observableList(FlyweightFactory.getData(Configs.cateService, Configs.CATE_KEY)));
+        this.cbSearchLevels.setItems(FXCollections.observableList(FlyweightFactory.getData(Configs.levelService, Configs.LVL_KEY)));
+
         loadTableQuestion();
         
         this.txtKeywords.textProperty().addListener(e->{
@@ -135,12 +133,12 @@ public class QuestionsController implements Initializable {
         QuestionQueryBuilder query = new QuestionQueryBuilder()
                 .withCategory(this.cbSearchCates.getSelectionModel().getSelectedItem())
                 .withKeywords(this.txtKeywords.getText())
-                .withLevel(this.cbLevels.getSelectionModel().getSelectedItem());
+                .withLevel(this.cbSearchLevels.getSelectionModel().getSelectedItem());
         
         Configs.questionService.setQuery(query);
         
         try {
-            this.tvQuestions.setItems(FXCollections.observableList(Configs.questionService.getQuestions()));
+            this.tvQuestions.setItems(FXCollections.observableList(Configs.questionService.list()));
         } catch (SQLException ex) {
             Logger.getLogger(QuestionsController.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }

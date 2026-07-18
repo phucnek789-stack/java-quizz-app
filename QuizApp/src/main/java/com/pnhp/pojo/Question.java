@@ -29,6 +29,11 @@ public class Question {
         this.level = b.level;
         this.choices = b.choices;
     }
+
+    @Override
+    public String toString() {
+        return this.content;
+    }
     
     public static class Builder{
         private int id;

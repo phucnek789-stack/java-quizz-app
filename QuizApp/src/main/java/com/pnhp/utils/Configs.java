@@ -18,4 +18,8 @@ public class Configs {
     public static final QuestionServices questionService = new QuestionServices();
     public static final LevelServices levelService = new LevelServices();
     public static final UpdateQuestionServices uQuestionService = new UpdateQuestionServices();
+    public static final String CATE_KEY = "categories";
+    public static final String LVL_KEY = "levels";
+    public static final int EXAM_NUM = 10;
+    public static final double[] RATED = {0.4, 0.4, 0.2};
 }
